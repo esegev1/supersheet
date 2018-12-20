@@ -1,0 +1,33 @@
+table, th, td {
+  border: 1px solid blackl;
+  border-collapse: collapse;
+
+}
+
+th, td {
+  padding: 1px;
+  border: 1px solid gray;
+  
+}
+
+th {
+	background: #eeeeee;
+	
+}
+
+input {
+	width: 75px;
+	border: none
+	
+}
+
+input:focus {
+	outline: none;
+	
+}
+
+th#tdcol1 {
+	width: 25px;
+	background: #eeeeee;
+	text-align: center;
+}
