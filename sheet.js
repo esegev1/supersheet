@@ -1,5 +1,5 @@
 /**********************************************************************************
-*          This function initiates a new canvas
+*          This function
 *             
 *
 *
@@ -14,10 +14,46 @@ function sheetData(){
 	var height = rowHeight * rows+41;
 	var width = colWidth * cols+41;
 	
-	var array = 
+	//Make a 2 dimensional array by the dimensions of colums and rows to hold the sheet data
+	var array = new Array(cols,rows);
+	var myJSON = JSON.stringify(arr);
+	
+	for (var i = 0; i<cols;i++) {
+		for (var j = 0; j<rows;j++) {
+			array[cols][rows].push()
+		}
+	}
+	
+	//Print out the array on a canvas that will sit above the existing canvas, later this data will come
+	//from a json file that will hold the data. 
+		
 }
 
+//A function to take the JSON file and update the canvas. 
+function update(){
+	
+	
+}
 
+/**********************************************************************************
+*         This function is triggered when a cell input box goes blur. 
+*         It will take the input, update the JSON file and delete the inputBox   
+*.      then it will run the function that refreshes the canvas with the data form the JSON
+*
+************************************************************************************/
+
+function loseCellFocus(value) {
+	
+	console.log(`value is ${value}`);
+	//Remove the input box
+	var elem = document.getElementById('input_cell');
+	if (elem){
+		elem.remove();
+	}
+	
+	
+	
+}
 
 
 function gridSize(){
@@ -32,6 +68,12 @@ function gridSize(){
 	return obj;
 }
 
+/**********************************************************************************
+*          This function creates the canvas with the grid lines and headers as
+*         well as the event listener that checks for screen taps    
+*
+*
+************************************************************************************/
 
 function createSheet(){
 	
@@ -178,7 +220,8 @@ function createSheet(){
 		workSpace.appendChild(inputBox);
 		inputBox.setAttribute("id","input_cell");
 		inputBox.setAttribute("style",'position: absolute; top: '+ offsetY + 'px; left: '+offsetX+'px; height: 20px; width: 98px;');		
-		inputBox.setAttribute("onBlur","document.getElementById('input_cell').remove();");
+		inputBox.setAttribute("onBlur","loseCellFocus(this.value);");
+		inputBox.setAttribute("onkeydown","if(event.keyCode == 13) {document.getElementById('input_cell').blur();}");
 		
 		//Timer set to make sure focus happens after everything above
 		window.setTimeout(function () { 
@@ -188,6 +231,12 @@ function createSheet(){
 	};	
 	
 }
+/**********************************************************************************
+*          This function creates the div and canvas we will use in createSheet
+*           this is the entry point from the html.index file
+*
+*
+************************************************************************************/
 
 function initWB(){
 	
@@ -204,4 +253,6 @@ function initWB(){
 	
 	
 	createSheet();
+	
+	
 }
