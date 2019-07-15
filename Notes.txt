@@ -1,5 +1,16 @@
 /************************************************************************************
 *                                                                                   *
+*                         Known Bugs                                                *
+*                                                                                   *
+*                                                                                   *
+************************************************************************************/
+
+1. 
+
+18247898
+
+/************************************************************************************
+*                                                                                   *
 *                          EVALUATION WORK                                          *
 *                                                                                   *
 *                                                                                   *
@@ -57,6 +68,11 @@ if digit =>
 
 if left Paren
 
+TURNING B2:E4 INTO AN ARRAY OF VALUES
+
+B2 = COL 1 ROW 2
+E4 = COL 4 ROW 4
+
 
 /************************************************************************************
 *             Cell interaction BRD                                                  *
@@ -89,6 +105,8 @@ if left Paren
 *                                                                                   *
 *                                                                                   *
 ************************************************************************************/
+VERY HELPFUL - devlog.disco.zone/2016/07/22/canvas-scaling/
+
 This might save you an hour wondering why in the world does the canvas look fuzzy!?!
 
 First, make your canvas element twice as large as you want it, but set it's width and height styles to the target size. For example, if you want a canvas element to be 500 points wide by 375 points high, you would do this:
@@ -103,225 +121,10 @@ If you look at your canvas now, it will look very tiny (half the size to be exac
 canvas.getContext('2d').scale(2,2)
 BOOM. Pretty canvas.
 
+https://eloquentjavascript.net/17_canvas.html
 
 
+Look into sparse array, they only use memory for spots that have values
 
 
 Another project to check out at some point maybe - https://github.com/myliang/x-spreadsheet
-
-OLD STUFF - PRE CANVAS
-
-
-
-function sheetBuilder_dep(cols,rows){
-	//Create a div that will encase the input boxes we use to crete the sheet
-	var sheetDiv = document.createElement("DIV");
-	document.body.appendChild(sheetDiv);
-	
-	//Create div for the formula bar
-	var formulaBar = document.createElement("DIV");
-	formulaBar.setAttribute("id","formulaBar");
-	//Insert the Fx| formula sign to the div 
-	var formulaBar_FX = document.createElement("DIV");
-	formulaBar_FX.setAttribute("Style","Width: 5%; Margin: 3px; display: inline-block;")
-	formulaBar_FX.innerHTML = "&#402"+ "x|"; //This line adds the Fx to the formula bar
-	formulaBar.appendChild(formulaBar_FX);
-	sheetDiv.appendChild(formulaBar);
-	
-	//Attach input box to the formula bar
-	var formulaInput = document.createElement("INPUT");
-	formulaInput.setAttribute("id","formulaInput");
-	formulaInput.setAttribute("Style","width: 90%");
-	formulaBar.appendChild(formulaInput);
-
-	//Create a div for the row numbers
-	var rowHeaders = document.createElement("DIV");
-	rowHeaders.setAttribute("id", "rowHeaders");
-	sheetDiv.appendChild(rowHeaders);
-	
-	//Loop through row numbers and create box numbers
-	for (b=0; b<=rows; b++) {
-		var input = document.createElement("INPUT");
-		input.setAttribute("type", "text");
-		input.setAttribute("id",String.fromCharCode(64)+ "@" + b);
-		input.setAttribute("class", "cell rowNum");
-		input.setAttribute("readonly", "true");
-		if (b>0){
-			input.setAttribute("value",b);
-		}
-		rowHeaders.appendChild(input);
-	}	
-
-
-	//Create a div for the column headers
-	var colHeaders = document.createElement("DIV");
-	colHeaders.setAttribute("id", "colHeaders");
-	sheetDiv.appendChild(colHeaders);
-	
-	//Loop through col number and create boxes within the colHeaders div for all the columns
-	for (a=1; a<=cols; a++) {
-		var input = document.createElement("INPUT");
-		input.setAttribute("type", "text");
-		input.setAttribute("id",String.fromCharCode(64+a)+"@0");
-		input.setAttribute("class", "cell header");
-		input.setAttribute("readonly", "true");
-		input.setAttribute("value",String.fromCharCode(64+a));
-		colHeaders.appendChild(input);
-		
-	}
-	
-
-	
-	//Create a div for the input boxes
-	var sheetCells = document.createElement("DIV");
-	sheetCells.setAttribute("id", "sheetCells");
-	sheetDiv.appendChild(sheetCells);
-	
-	for (i=1; i<=rows; i++){
-		for (j=1; j<=cols; j++){
-			//console.log(`i is ${i} and j is ${j}`);
-			var input = document.createElement("INPUT");
-			input.setAttribute("type", "text");
-			input.setAttribute("id",String.fromCharCode(64+j)+"@" + i);
-			input.setAttribute("class", "cell inputCells");
-			//Attach the handlers to each input box, function found further down	
-			input.setAttribute("onfocus","onFocusHandler(this);");
-			input.setAttribute("onblur","onBlurHandler(this);");
-			input.setAttribute("oninput","onInputHandler(this);");
-			input.setAttribute("onkeydown","onKeydownHandler(event);");
-			input.setAttribute("onmousedown","onMousedownHandler(this);");
-			input.setAttribute("onmouseup","onMouseupHandler(this);");
-			sheetCells.appendChild(input);
-		}
-		//Inserts a linebreak once boxes created equals columns we have
-		var linebreak = document.createElement("BR");
-		sheetCells.appendChild(linebreak);
-	}	
-}	
-
-/**********************************************************************************
-*             This function is sent a formula and evaluates it
-*             
-*
-*
-************************************************************************************/
-function formulaEval(){
-	console.log(`formulaEval start`);
-	var formula = '=if(a1="b",sumifs(a1:a10,b1:b10,b2,c1:c10,"hello"),"no")';
-	var forOps = [",","&","=","(",")"]; //array of formula operators
-	var forParse = []; //Array that will contain each piece of the formula
-	//Construct string from last position to one of the formula Operators [",","=","(",")","&"]
-	var subFor = ""; //holds the portion of formula the script is working on indefitying
-	for (var i = 1; i<=formula.length; i++) {
-		if (fOps.indexOf(formula[i]) == -1) {
-			//if a character is not a formula operator add it to the substring
-			subFor += formula[i];
-			console.log(`subFor is ${subFor}`);
-		} else if (fOps.indexOf(formula[i])>=0 && fOps.indexOf(formula[i]) <=2) { //All fOps other than ( and )
-			//This should only trigger for & and "" as , should be skipped by the code below
-			forParse.push(formula[i]);
-			console.log(`forParse array is ${forParse}`);
-		} else {
-			//if a charcater is a formula operator of ( or ) recognize the substring as a formula and creat its JSON
-			forParse.push(formulaObjectConstructor(subFor));
-			console.log(`forParse array is ${forParse}`);
-		}
-	}
-	
-	
-	//If formula name found create object of arguments of
-	
-	
-	
-}
-
-function formulaObjectConstructor(subFor){
-	var forArray=[];
-	//below creates a JSON obj with the pieces a formula can contain, IFS formulas will need to think through
-	switch (subFor.toUpperCase) {
-	case "IF":
-		return forArray.push(["logical_exp"],["value_if_true"], ["value_if_false"]);
-		break;
-	case "SUM":
-		return forArray.push(["sum_range"]);
-		break;
-	case "SUMIF":
-		return forArray.push(["conditional_range"],["condition"],["sum_range"]);
-		break;
-	default: 
-		return forArray.push(subFor);
-	}
-	
-	//return the obj to the calling function
-	return forArray;
-	
-}
-
-
-
-function evalCell(target){
-	console.log(`evalFormula target is ${target}`);	
-	var formula = document.getElementById(target).value;
-	var finalValue = "";
-	var r = /[0-9]/;
-	console.log(`first number in ${formula} is ${formula.search(r)} also formula.indexOf(0) is ${formula.indexOf("=")} `);
-	if (formula.indexOf("=") == 0){
-		document.getElementById(target).setAttribute("alt",formula);
-		var evalString = "";
-		for (i=1; i<formula.length; i++){
-			console.log(`i is ${i} and evalString is ${evalString}`);
-			var chr = formula[i].toUpperCase();
-			//console.log(`chr is ${chr} with a chrCode of ${chr.charCodeAt(0)}`);
-			if (chr.charCodeAt(0) >= 65 && chr.charCodeAt(0) <= 93){
-				//This string has everything from the curr character and to the end
-				var currString = formula.substring(i,formula.length);
-				var nxtNum = currString.search(/[0-9]/);
-				var refId = currString.substring(0,nxtNum) + "@";
-				console.log(`after step 1 of eval currString is ${currString}, nxtNum is ${nxtNum} refId is ${refId}`);
-				var nxtString = currString.substring(nxtNum,currString.length);
-				var lstNum = nxtString.search(/[^0-9]/);
-				if (lstNum == -1) {
-					lstNum = 1;
-				}
-				refId += nxtString.substring(0,lstNum);
-				console.log(`after step 2 of eval nxtString is ${nxtString}, lstNumb is ${lstNum} refId is ${refId}`);
-				
-				var refVal = document.getElementById(refId.toUpperCase()).value;
-				//below tries to skip to the next character after the cell reference, -2 is removing 1 for the @
-				//in the id's and the other 1 because when it loops it will add 1 to i
-				i = i + (refId.length-2);
-				evalString += refVal;
-			} else {
-				evalString += formula[i];
-			}
-		}	
-		//below evaluates the string that was created from the formula
-		console.log(`evalString is ${evalString}`);
-		try {
-			//console.log("try initiated");
-			finalValue = eval(evalString);
-		} catch {
-			//console.log("catch initiated");
-			finalValue = evalString
-			;
-		}
-	} else {
-		finalValue = formula;
-	}
-	
-	//returns the final value so that the calling function can put it back into that cell
-	return finalValue;
-}
-
-function insertSheet(){
-	//Pull the height and width of the window, divide by estimation of px per col/row and add a few for overflow
-	var height = document.documentElement.clientHeight;
-	var width = document.documentElement.clientWidth;
-	var cols = Math.round(width/80) + 4;
-	var rows = Math.round(height/25) + 10;
-	
-	sheetBuilder(cols,rows);
-	console.log(`width ${width} and cols ${cols}`);
-	console.log(`height ${height} and rows ${rows}`);
-	
-}

@@ -1,0 +1,275 @@
+<script>
+/**********************************************************************************
+*             Code below controls the in-cell function that users can call
+*             by using "=XXX()"
+*https://code.tutsplus.com/articles/data-structures-with-javascript-tree--cms-23393
+*
+************************************************************************************/
+
+
+/**********************************************************************************
+*          This function handles the tokenization of formulas
+*             
+*
+*
+************************************************************************************/
+
+function Token(type, value){
+	this.type = type;
+	this.value = value
+}
+
+function tokenize(str) {
+  var tokens=[]; //array of tokens
+  var stringBuffer=[];
+  
+  // remove spaces; remember they don't matter?
+  str.replace(/\s+/g, "");
+  // convert to array of characters
+  str=str.split("");
+
+  str.forEach(function (char, idx) {
+	  //console.log(`Start char is ${char} stringBuffer is ${stringBuffer}`);
+	  //Step 1. Check if char is an operator
+	  //This should then work well with the idea of skipping through tree nodes
+	  if (/\+|-|\*|\/|\^/.test(char)) { //If operator, we need to take everything before the op and deal with it
+		  emptyStringBuffer();  //here we empty the string buffer, which contains everything prior to operator
+		  //Add the operator token, later also skip up tree nodes
+		  tokens.push(new Token("Operator",char));
+	  } else if (char == "(") {//Is it a left paren?
+		  emptyStringBuffer(); 
+		  //Add the Left Paren token, later also skip up tree nodes
+		  tokens.push(new Token("Left Paren",char));
+	  } else if (char == ")") {//Is it a right paren?
+		  emptyStringBuffer(); 
+		  //Add the right Paren token, later also skip up tree nodes
+		  tokens.push(new Token("Right Paren",char));
+	  } else if (char == ",") {//is it a comma?
+		  emptyStringBuffer(); 
+		  //Add the "unction Argument Separator token, later also skip up tree nodes
+		  tokens.push(new Token("Arg Sep",char));
+	  } else if (char == "=") {//is it a comma?
+		  emptyStringBuffer(); 
+		  //Add the "unction Argument Separator token, later also skip up tree nodes
+		  tokens.push(new Token("Operator",char));
+	  } else {
+	  	stringBuffer.push(char);
+	  }
+	  
+	});  
+	
+	emptyStringBuffer();  
+	console.log(tokens);
+	//console.log(`result is ${JSON.stringify(result)}`);
+    //Function below takes the stringBuffer and figures out if it is a Ref, function or literal then adds token
+	  function emptyStringBuffer() {
+      	if (stringBuffer.length) {
+      		var str1 = stringBuffer.join("");
+			var isLet = /[a-z]/i.test(str1);
+			var isDig = /\d/.test(str1);
+			if (isLet && isDig){
+				tokens.push(new Token("Ref", str1));
+			} else if (isLet == true && isDig == false) {
+				tokens.push(new Token("Function", str1));
+			} else if (isLet == false && isDig == true) {
+				tokens.push(new Token("Literal", parseFloat(str1)));
+			}
+      		stringBuffer=[];
+      	}
+      }
+	  return tokens;
+  }
+/**********************************************************************************
+*          This function take the result array from Tokenize
+*            and then puts it into a node & tree consturcuts
+*
+*
+************************************************************************************/
+ //=sum(8,9)
+ /*
+     sum
+       sum
+         7
+         8
+       9
+  u =  node{data: sum , parent: null , children: [v,w]}
+  v =  node{data: 8, parent: u , children: [] }
+  w =  node{data: 9, parent: u , children: [] }
+ 
+ traversal approach
+ collection[root.data, _children[0].data ... _children[n].data, _children[0]._children[0].data ... _children[0]._children[n].data
+ 
+ 
+ */
+
+class Node{
+	  //The node class is allocating new memory to hold the data we need it to hold
+	  _children = [];
+	  constructor(data) {
+	  	  this.data = data;
+		  this.solved = false;
+		  this.ready = false;
+	  }
+	  addChild(node){
+	  	this._children.push(node);
+		node.parent = this;
+	  }
+	  traverseEQ() {		  
+		  
+		  //is every child solved == true? if not, traverese children
+		  
+		  while (this.solved == false) {
+			  
+			  function checkSolved(child) {
+			  	  return child.solved == true;
+			  }
+			  function checkReady(child) {
+			  	  return child.ready == true;
+			  }
+			  var len = this._children.length;
+			  
+			  //If no children, check if all siblings are resolved, if so, solve parent, otherwise exit
+			  if (len == 0) {
+				  if (this.parent._children.every(checkReady) == true) {
+					  formulas(this.parent);
+				  } else {
+					  return;
+				  }
+			  //If node has children, check if its root node, if so check if all children are resolved, if so solve
+			  //the parent node. otherwie tracerse the children.
+			  // If it is not the root node (this.parent != null) then check the parents children solved status
+			  // if solved then solve parent, otherwise traverse children 
+			  } else {
+				  if (this.parent == null) {
+					  if (this._children.every(checkReady)==true) {
+					  	formulas(this);
+					  } else {
+						  for (var i=0; i<len; i++) {
+							  this._children[i].traverseEQ();
+						  } 
+					  }
+				  } else {
+					  if (this.parent._children.every(checkReady) == true) {
+						  formulas(this.parent);
+					  } else {
+						  for (var i=0; i<len; i++) {
+							  this._children[i].traverseEQ();
+						  }
+					  }   	
+				  }
+			  }
+	  	  }
+	  return this.solvedVal;
+	  }
+} 
+
+
+
+function makeTree(tokens) {  
+	var currNode;
+	var rootNode;	
+	//var nodes = []
+  
+	for (var i = 0; i < tokens.length; i++) {
+  	  var type = tokens[i].type;
+  	  var data = tokens[i].value;
+	  //console.log(`type is: ${type} and value is: ${data}`);  
+	  if (type == "Ref" || type == "Function") {
+		  
+  		  var n = new Node(data);
+		  //nodes.push(n);
+  		  if (rootNode == null) {
+  			  rootNode = n;
+  		  }
+  		  if (currNode == null) {
+  			  currNode = n;
+  		  } else {
+  			  currNode.addChild(n);
+			  currNode = n;
+  		  } 
+  	  } else if (type == "Literal") {
+  		  var n = new Node(data);
+		  n.ready = true;
+		  n.solvedVal = data;
+		  //nodes.push(n);
+  		  if (rootNode == null) {
+  			  rootNode = n;
+  		  }
+  		  if (currNode == null) {
+  			  currNode = n;
+  		  } else {
+  			  currNode.addChild(n);
+			  currNode = n;
+  		  } 
+  	  	
+  	  } else if (type == "Left Paren") {
+  		  //currNode = nodes[i-1];
+  	  } else if (type == "Right Paren") {
+  		  currNode = currNode.parent;
+  	  } else if (type == "Operator") {
+		  if (data == "=") {
+	  		  var n = new Node(data);
+			  //nodes.push(n);
+	  		  if (rootNode == null) {
+	  			  rootNode = n;
+	  		  }
+	  		  if (currNode == null) {
+	  			  currNode = n;
+	  		  } else {
+	  			  currNode.addChild(n);
+				  currNode = n;
+	  		  } 
+		  } else {
+		  	currNode = currNode.parent;
+		  }
+		 
+  	  } else if (type == "Arg Sep") { 	
+         currNode = currNode.parent;
+	  }
+		
+	}
+
+  console.log(rootNode);
+  return rootNode;
+}
+
+function formulas(currNode){
+  
+	switch (currNode.data) {
+	  case "SUM":
+		  var result = 0;
+		  var childCount = currNode._children.length;
+		  for (var i=0; i<childCount; i++) {
+			if (currNode._children[i].solved != true) {
+		    	result += currNode._children[i].data;
+		    } else if (currNode._children[i].solved == true) {
+		    	result += currNode._children[i].solvedVal;
+		    }
+			currNode._children[i].solved = true;
+		  }
+		  currNode.solved = true;
+		  currNode.ready = true;
+		  currNode.solvedVal = result;
+		  return result;
+	  case "=":
+		  var result = 0;
+		  var childCount = currNode._children.length;
+		  for (var i=0; i<childCount; i++) {
+		  	result += currNode._children[i].solvedVal;
+		  }
+		  
+		  currNode.solved = true;
+		  currNode.ready = true;
+		  currNode.solvedVal = result;
+		  return result;
+		  	
+	}		
+}
+function fEval(fInput){
+	var tokens = tokenize(fInput);
+	var rootNode = makeTree(tokens);
+	var solvedVal = rootNode.traverseEQ();
+	console.log(solvedVal);
+}
+
+</script>

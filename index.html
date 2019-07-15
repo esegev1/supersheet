@@ -6,14 +6,36 @@
 	<script src="./functions.js"></script>
 	<script src="./cellinteraction.js"></script>
 	<title>Supersheets</title>
-
+  <!--   <script>
+		window.addEventListener("contextmenu", e => {
+		  e.preventDefault();
+		  var cMenu = document.getElementById('menu');
+		  var xLoc = e.pageX;
+		  var yLoc = e.pageY;
+		  cMenu.style.display = 'block';
+		  cMenu.style.left = `${xLoc}px`;
+		  cMenu.style.top = `${yLoc}px`;
+		});
+		
+		function successIn(result){ 		
+			var div = document.getElementById('tools_cont');
+			div.innerHTML = result;
+		}	
+    </script>-->
 </head>
 <body id="body">
-	
-	<!-- When this turn into a fuller app this will be how you navigate to a sheet
+	<!--<div id="tools"> </div>
+	<div id="editor" contenteditable="true" onclick="innerHtml();"> </div>
+	 When this turn into a fuller app this will be how you navigate to a sheet
 		<div class="navbar">Nav bar</div>
-	<div class="content-pane"> contents</div>-->
+	<div class="content-pane"> contents</div>
 	<div id="mySheet"></div>
 	<script> initWB() </script>
+	<div id="menu"> 
+	  <ul class="menu-options">
+		  <li class="menu-option">Add Sheet</li>
+	</div>-->
+		<div id="mySheet"></div>
+		<script> initWB() </script>
 </body>	
 </html>
